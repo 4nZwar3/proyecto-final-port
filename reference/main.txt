@@ -1,0 +1,1231 @@
+/*Programa hecho por*/
+//Christopher Jesus Mathus Rodriguez
+//Francisco Benjamin Tiscareño Gutierrez
+
+/*
+PROYECTO
+ESCUELA DE FUTBOL ATLAS RUSO
+En el siguiente proyecto, utilizar las estructuras vistas en clase durante el semestre,
+selectivas: simple*, doble*, múltiple*, ciclos: while*, do while* y for*, además de las funciones
+para cadenas*, funciones (con y sin retorno)*, arreglos* y estructuras*, arreglo de estructura*,
+funciones para cambiar color de texto y fondo y funciones de fecha y hora.
+Comentar dónde se aplica cada uno. Por lo menos en una ocasión cada uno.
+El proyecto se desarrolla para llevar el control de una escuela de futbol “ATLAS RUSO”,
+donde el encargado de la escuela puede dar de alta a los Entrenadores y revisa los reportes
+de la información generada, los adeudos, torneos activos y datos de los equipos.
+*/
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include "lucio.h"
+
+#define Lim 30
+#define Lim2 60
+#define Abuelo 255
+#define s scanf
+#define p printf
+
+/*----------DECLARACION-FUNCIONES----------*/
+/*(funcion sin retorno)*/
+void inicio(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+/*(funcion con retorno)*/
+int login(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+int menuAdmin(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void entrenadoresMenu(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void signup(int *coachCount);
+void mostrar(int *coachCount);
+void buscar(int *coachCount);
+void equipoXCoach(int *coachCount, int *playerCount, int *teamCount);
+void pagosJugador(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void pagosFecha(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void regTourn();
+void repAdmin(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void regEquip(int *playerCount, int *teamCount);
+void regPl(int *playerCount, int *teamCount, int teamID);
+void showTeam(int *teamCount);
+void teamCat(int *teamCount, int *playerCount);
+void equipoXCode(int *teamCount, int *playerCount);
+int menuUsuario(int *coachCount, int *playerCount, int *teamCount, int *payCount);
+void mkPay(int *coachCount, int *playerCount, int *payCount);
+void torneo();
+void clch();
+void clchb();
+/*----------/DECLARACION-FUNCIONES----------*/
+
+
+/*----------STRUCT-EQUIPO----------*/
+	/*
+	Los datos de un equipo son: CÓDIGO_EQ, CATEGORÍA, ENTRENADOR, HARARIO
+	Los equipos pueden tener hasta 30 integrantes
+	*/
+/*(estructura)*/
+typedef struct {
+	int EQteamID;
+	char EQcategory[Lim];
+	int EQcoachID;
+	char EQschedule[Lim2];
+} team;
+
+/*(arreglo de structura)*/
+team equipos[Abuelo];
+/*----------/STRUCT-EQUIPO----------*/
+
+
+/*----------STRUCT-ENTRENADOR----------*/
+	/*
+	Los datos del entrenador son: CÓDIGO_EN, NOMBRE, AP, AM, EDAD, ESTUDIOS,
+	SUELDOXEQ, TEL.
+	*/
+typedef struct {
+	char TRusrname[Lim2];
+	char TRpassword[Lim2];
+	int TRcode;
+	char TRname[Lim];
+	char TRlastName1[Lim];
+	char TRlastName2[Lim];
+	char TRcareer[Lim2];
+	float TRsalary;
+	char TRregDate[9];
+} trainer;
+
+trainer entrenadores[Abuelo];
+/*----------/STRUCT-ENTRENADOR----------*/
+
+
+/*----------STRUCT-JUGADOR----------*/
+	/*
+	Los datos de Jugadores son: CÓDIGO_J, NOMBRE, AP, AM, TELS(SON 3 TELEFONOS,
+	PADRE, CASA, EMERGENCIA),FECHA NACIMIENTO, CURP.
+	*/
+typedef struct {
+	int PLplayerID;
+	int PLteamID;
+	char PLname[Lim];
+	char PLlastName1[Lim];
+	char PLlastName2[Lim];
+	long PLphoneNumber[3];
+	char PLbday[9];
+	char PLcurp[21];
+} player;
+
+player jugadores[Abuelo];
+/*----------/STRUCT-JUGADOR----------*/
+
+
+/*----------STRUCT-PAGOS----------*/
+typedef struct {
+	int CHplayerID;
+	int CHcoachID;
+	int CHamount;
+	char CHdate[9];
+	int CHweek;
+} check;
+
+check pagos[Abuelo];
+/*----------/STRUCT-PAGOS----------*/
+
+/*----------STRUCT-TORNEOS----------*/
+typedef struct {
+	char TOname[Lim];
+	char TOdate[9];
+	char TOcat[Lim2];
+	char TOcoach[Lim];
+	char TOcost[Lim];
+	char TOgamesDone[Lim];
+	char TOgamesWon[Lim];
+	char TOgamesLost[Lim];
+	char TOgamesTied[Lim];
+} tourn;
+
+tourn torneos[Abuelo];
+
+int tournCount = 0;
+/*----------/STRUCT-TORNEOS----------*/
+
+/*----------PRINCIPAL----------*/
+int main(void) {
+	int coachCount = 0, playerCount = 0, teamCount = 0, payCount = 0;
+
+	/*(funcion cadena)*/
+	strcpy(entrenadores[0].TRusrname, "ADMIN");
+	strcpy(entrenadores[0].TRpassword, "1212");
+
+    strcpy(entrenadores[222].TRusrname, "color");
+	strcpy(entrenadores[222].TRpassword, "123");
+	++coachCount;
+
+	inicio(&coachCount, &playerCount, &teamCount, &payCount);
+
+	return 0;
+}
+/*----------/PRINCIPAL----------*/
+
+
+/*----------INICIO----------*/
+	/*
+	Al entrar al programa aparece el menú:
+	ATLAS RUSO
+	1. INICIAR
+	2. SALIR
+	CAPTURA UNA OPCION: _
+	Si no es ninguno imprime opción inválida.
+	*/
+void inicio(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+	int opt;
+	/*(funcion tiempo)*/
+	time_t now;
+	time(&now);
+	/*(ciclo do while)*/
+	do {
+		printf("\nTiempo actual: %s\nATLAS RUSO\n1. INICIAR\n2. SALIR\n\nCAPTURA UNA OPCION\n:", ctime(&now));
+		scanf("%d", &opt);
+    	getc(stdin);
+		/*(selectiva multiple)*/
+    	switch (opt) {
+      		//INICIAR
+      		case 1:
+				opt = login(coachCount, playerCount, teamCount, payCount);
+			break;
+
+      		//SALIR
+      		case 2:
+				puts("\nFin del programa\nPrograma hecho por\n-Christopher Mathus\n-Francisco Tiscareño");
+				getc(stdin);
+			break;
+
+      		//DEFAULT
+      		default:
+				puts("\nOpcion invalida");
+				opt = 3;
+      	}
+  	}while (opt == 3);
+}
+/*----------/INICIO----------*/
+
+
+/*----------LOGIN----------*/
+	/*
+	Si es INICIAR, pregunta usuario y contraseña, sino se han registrado entrenadores, se inicia
+	con ADMIN y la contraseña es 1212. El ADMIN, no se registra, es el primer usuario para entrar
+	al sistema. Cuando ya existen Entrenadores,ellos tendrán un usuario y una contraseña para entrar.
+	*/
+int login(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+    int i, opc = 1;
+    char usr[Lim];
+    char pwrd[Lim];
+
+	/*(ciclo while)*/
+	while (opc != 3) {
+		usr[0] = '\0';
+        pwrd[0] = '\0';
+		printf("\nInserte su nombre de usuario\n:");
+		fgets(usr, Lim, stdin);
+
+		usr[strlen(usr) - 1] = '\0';
+
+		printf("\nInserte su clave\n:");
+		fgets(pwrd, Lim, stdin);
+
+		pwrd[strlen(pwrd) - 1] = '\0';
+
+		/*(ciclo for)*/
+		for (i = 0; i <= Abuelo; ++i) {
+			if (strcmp(usr, entrenadores[i].TRusrname) == 0) {
+				if (strcmp(pwrd, entrenadores[i].TRpassword) == 0) {
+					puts("\nUsuario reconocido");
+					break;
+				}
+				else {
+					puts("\nClave incorrecta");
+				}
+			}
+		}
+
+		if(i == 0) {
+			opc = menuAdmin(coachCount, playerCount, teamCount, payCount) - 1;
+		} else if(i == 222) {
+			clch();
+			clchb();
+		} else if(i < Abuelo) {
+			opc = menuUsuario(coachCount, playerCount, teamCount, payCount);
+		} else {
+			puts("\nUsuario no reconocido");
+		}
+	}
+
+	return opc;
+}
+/*----------/LOGIN----------*/
+
+/*(funcion color)*/
+void clch() {
+  system("Color BA");
+  puts("color de texto ha sido cambiado");
+}
+
+void clchb() {
+  system("Color BA");
+  puts("color de fondo ha sido cambiado");
+}
+
+/*----------MENU-ADMIN----------*/
+	/*
+	Al entrar, el ADMIN podrá ver el siguiente menú:
+	ATLAS RUSO-ADMIN
+	1. ENTRENADORES
+	2. REPORTES
+	3. CAMBIAR USUARIO
+	SELECCIONA UNA OPCION: _
+	*/
+int menuAdmin(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+    int opc;
+
+    do {
+        printf("\nATLAS RUSO-ADMIN\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\nSELECCIONA UNA OPCION\n:");
+        scanf("%1d", &opc);
+        getc(stdin);
+
+        switch (opc) {
+            case 1:entrenadoresMenu(coachCount, playerCount, teamCount, payCount);break;
+
+            case 2:repAdmin(coachCount, playerCount, teamCount, payCount);break;
+
+            case 3:break;
+
+            case 4:break;
+
+            default:puts("\nOPCION INVALIDA");break;
+        }
+    }while (!(opc == 4 || opc == 3));
+
+	return opc;
+}
+
+/*-----ENTRENADORES-MENU-----*/
+	/*
+	Al entrar a entrenadores verá el siguiente menú:
+	ENTRENADORES-ADMIN
+	1. REGISTRO ENTRENADOR
+	2. MOSTRAR ENTRENADORES
+	3. BUSCAR ENTRENADOR
+	4. EQUIPOS POR ENTRENADOR
+	5. PAGOS POR JUGADOR
+	6. PAGOS POR FRCHA
+	7. REGISTRAR TORNEO
+	8. REGRESAR
+	SELECCIONA UNA OPCION: _
+	*/
+void entrenadoresMenu(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+    int opcion;
+    do {
+        printf("\nENTRENADORES-ADMIN\n1. REGISTRO ENTRENADOR\n2. MOSTRAR ENTRENADORES\n3. BUSCAR ENTRENADOR\n4. EQUIPOS POR ENTRENADOR\n5. PAGOS POR JUGADOR\n6. PAGOS POR FECHA\n7. REGISTRAR TORNEO\n8. REGRESAR\nSELECCIONA UNA OPCION\n:");
+        scanf("%1d", &opcion);
+        getc(stdin);
+
+        switch (opcion) {
+            case 1:
+				signup(coachCount);
+			break;
+
+            case 2:
+				mostrar(coachCount);
+			break;
+
+            case 3:
+				buscar(coachCount);
+			break;
+
+            case 4:
+				equipoXCoach(coachCount, playerCount, teamCount);
+			break;
+
+            case 5:
+				pagosJugador(coachCount, playerCount, teamCount, payCount);
+			break;
+
+            case 6:
+				pagosFecha(coachCount, playerCount, teamCount, payCount);
+			break;
+
+			case 7:
+				regTourn();
+			break;
+
+			/*
+			REGRESAR, regresa al menú que ve el ADMIN.
+			ADMIN, es el usuario y se muestra en los menús, eso pasa en cada usuario.
+			*/
+            case 8:break;
+
+            default:puts("\nOpcion invalida");break;
+        }
+    }while (opcion != 8);
+}
+
+
+/*-SIGNUP-*/
+	/*
+	Para REGISTRO, se pedirán los siguientes datos: CODIGO, NOMBRE, AP, AM,
+	CARRERA, SUELDO, FECHA INGRESO, regresa al menú de ENTRENADORES. Además,
+	se registra un usuario y contraseña (será automáticamente con los datos registrados), el
+	usuario será compuesto por las dos primeras iniciales de nombre, ap, am y carrera más un
+	número, para diferenciar a los iguales, la contraseña será igual al usuario (solo al momento
+	de la creación. Después se cambiará
+	*/
+void signup(int *coachCount) {
+    int codiguito, opc, pass = 1, random;
+    char usuarito[Lim2] = {0}, contrasenita[Lim2] = {0}, nombresito[Lim], apsito[Lim], amsito[Lim], carrerita[Lim2], diaReg[9], usrNum[Lim];
+    float salarito;
+
+    do {
+        usuarito[0] = '\0';
+        contrasenita[0] = '\0';
+        nombresito[0] = '\0';
+        apsito[0] = '\0';
+        amsito[0] = '\0';
+        carrerita[0] = '\0';
+        diaReg[0] = '\0';
+        usrNum[0] = '\0';
+
+        srand(time(0));
+
+        random = rand();
+
+        snprintf(usrNum, 5, "%d", random);
+
+        /*(selectiva doble)*/
+		if (*coachCount < Abuelo) {
+            printf("\nInserte su codigo\n:");
+            scanf("%7d", &codiguito);
+            getc(stdin);
+
+            for(int i = 0; i < *coachCount; ++i) {
+                if(entrenadores[i].TRcode == codiguito && *coachCount != 0) {
+                    pass = 0;
+
+                    puts("\nYa existe un usuario con ese codigo");
+
+                    break;
+                }
+            }
+
+            /*(selectiva simple)*/
+			if (pass == 1) {
+                printf("\nInserte su nombre\n:");
+                fgets(nombresito, Lim, stdin);
+                nombresito[strlen(nombresito) - 1] = '\0';
+
+                strcpy(nombresito, low(nombresito));
+
+                nombresito[0] = toupper(nombresito[0]);
+
+                printf("\nInserte su apellido paterno\n:");
+                fgets(apsito, Lim, stdin);
+
+                apsito[strlen(apsito) - 1] = '\0';
+
+                strcpy(apsito, low(apsito));
+
+                apsito[0] = toupper(apsito[0]);
+
+                printf("\nInserte su apellido materno\n:");
+                fgets(amsito, Lim, stdin);
+
+                amsito[strlen(amsito) - 1] = '\0';
+
+                strcpy(amsito, low(amsito));
+
+                amsito[0] = toupper(amsito[0]);
+
+                printf("\nInserte su carrera\n:");
+                fgets(carrerita, Lim2, stdin);
+
+                carrerita[strlen(carrerita) - 1] = '\0';
+
+                strcpy(carrerita, low(carrerita));
+
+                for (int i = 0; i < sizeof(carrerita); i++) {
+                    if (carrerita[i - 1] == ' ' || i == 0) {
+                        carrerita[i] = toupper(carrerita[i]);
+                    }
+                }
+
+                printf("\nInserte su salario\n:");
+                scanf("%f", &salarito);
+                getc(stdin);
+
+                printf("\nInserte su dia de registro(dd/mm/yy)\n:");
+                fgets(diaReg, 9, stdin);
+
+                diaReg[strlen(diaReg) - 1] = '\0';
+
+                strncat(usuarito, nombresito, 2);
+                strncat(usuarito, apsito, 2);
+                strncat(usuarito, amsito, 2);
+                strncat(usuarito, carrerita, 2);
+
+                strcpy(usuarito, low(usuarito));
+
+                strcat(usuarito, usrNum);
+
+                strcat(contrasenita, usuarito);
+
+                printf("\nLos datos obtenidos fueron:\n\nCodigo: %d\nNombre: %s\nApellido Paterno: %s\nApellido Materno: %s\nCarrera: %s\nSalario: $%.2f\nDia de registro: %s\n\nSu usuario sera:\n%s\n\nSu clave sera:\n%s\n\nDesea continuar?\n1. Si\n2. No\n:", codiguito, nombresito, apsito, amsito, carrerita, salarito, diaReg, usuarito, contrasenita);
+                scanf("%1d", &opc);
+				getc(stdin);
+
+                switch(opc) {
+                    case 1:
+                        strcpy(entrenadores[*coachCount].TRusrname, usuarito);
+                        strcpy(entrenadores[*coachCount].TRpassword, contrasenita);
+                        entrenadores[*coachCount].TRcode = codiguito;
+                        strcpy(entrenadores[*coachCount].TRname, nombresito);
+                        strcpy(entrenadores[*coachCount].TRlastName1, apsito);
+                        strcpy(entrenadores[*coachCount].TRlastName2, amsito);
+                        strcpy(entrenadores[*coachCount].TRcareer, carrerita);
+                        entrenadores[*coachCount].TRsalary = salarito;
+                        strcpy(entrenadores[*coachCount].TRregDate, carrerita);
+
+                        *coachCount = *coachCount + 1;
+
+                        puts("\nRegistro exitoso\nRegresando al menu anterior");
+                    break;
+
+                    case 2:
+
+                    break;
+
+                    default:
+                        puts("\nOpcion invalida");
+                }
+            }
+        }
+        else {
+            puts("\nSe ha alcanzado el limite de usuarios");
+        }
+    }while (opc != 1);
+}
+/*-/SIGNUP-*/
+
+
+/*-MOSTRAR-*/
+	/*
+	Para MOSTRAR ENTRENADORES, se muestra la lista de entrenadores, código, nombre y
+	apellidos, regresa al menú de ENTRENADORES.
+	*/
+void mostrar(int *coachCount) {
+    if (*coachCount == 1) {
+        puts("\nNo hay usuarios por mostrar");
+    }
+    else {
+        for(int i = 1; i < *coachCount; ++i) {
+            printf("\nCodigo: %d\nNombre: %s\nApellido Paterno: %s\nApellido Materno: %s\n", entrenadores[i].TRcode, entrenadores[i].TRname, entrenadores[i].TRlastName1, entrenadores[i].TRlastName2);
+        }
+    }
+}
+/*-/MOSTRAR-*/
+
+
+/*-BUSCAR-*/
+	/*
+	Para BUSCAR ENTRENADOR, se busca por código, si no se encuentra imprime mensaje,
+	si se encuentra muestra su información, regresa al menú de ENTRENADORES.
+	*/
+void buscar(int *coachCount) {
+    int codiguito, i;
+
+    if (*coachCount == 1) {
+        puts("\nNo hay usuarios por buscar");
+    } else {
+        printf("\nInserte el codigo del entrenador a buscar\n:");
+        scanf("%7d", &codiguito);
+		getc(stdin);
+
+        for(i = 1; i < *coachCount; ++i) {
+            if(entrenadores[i].TRcode == codiguito) {
+            printf("\nCodigo: %f\nNombre: %s\nApellido Paterno: %s\nApellido Materno: %s\n", entrenadores[i].TRcode, entrenadores[i].TRname, entrenadores[i].TRlastName1, entrenadores[i].TRlastName2);
+
+                break;
+            }
+        }
+        if (i == *coachCount) {
+            puts("\nNo se ha encontrado ningun resultado");
+        }
+    }
+}
+/*-/BUSCAR-*/
+
+/*-EQUIPOXCOACH-*/
+	/*
+	En EQUIPO POR ENTRENADOR, se pregunta el código del entrenador y muestra cuantos
+	y cuales equipos tiene, regresa al menú de ENTRENADORES.
+	*/
+void equipoXCoach(int *coachCount, int *playerCount, int *teamCount) {
+	int codiguito, i, cuenta = 0;
+
+	if (*coachCount == 1) {
+        puts("\nNo hay usuarios por buscar");
+    } else {
+        printf("\nInserte el codigo del entrenador a buscar\n:");
+        scanf("%7d", &codiguito);
+		getc(stdin);
+
+        for(i = 1; i < *coachCount; ++i) {
+            if(entrenadores[i].TRcode == codiguito) {
+				for(int j = 0; j <= *teamCount; ++j) {
+					if(equipos[j].EQcoachID == codiguito) {
+						printf("\nCodigo de equipo: %d", equipos[j].EQteamID);
+						++cuenta;
+					}
+				}
+				if (cuenta == 0) {
+					puts("\nEste entrenador no tiene equipo");
+				} else if (cuenta == 1) {
+					puts("\nEste entrenador tiene 1 equipo");
+				} else {
+					printf("\nEste entrenador tiene %d equipos\n", cuenta);
+				}
+                break;
+            }
+        }
+        if (i == *coachCount) {
+            puts("\nNo se ha encontrado ningun resultado");
+        }
+    }
+}
+/*-/EQUIPOXCOACH-*/
+
+
+/*-PAGOSJUGADOR-*/
+	/*
+	PAGOS POR JUGADOR, pregunta el código del jugador, si no está anda m mensaje, si lo
+	encuentra muestra cuantas semanas ha pagado y su equivalente en dinero.
+	*/
+void pagosJugador(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+	int i, codiguito;
+
+	if (*playerCount == 0) {
+        puts("\nNo hay usuarios por buscar");
+    } else {
+        printf("\nInserte el codigo del jugador a buscar\n:");
+        scanf("%7d", &codiguito);
+		getc(stdin);
+
+        for(i = 1; i < *playerCount; ++i) {
+            if(pagos[i].CHplayerID == codiguito) {
+				printf("\nCodigo de entrenador: %d\nCantidad: %d\nFecha: %s\nSemana: %d", pagos[i].CHcoachID, pagos[i].CHamount, pagos[i].CHdate, pagos[i].CHweek);
+            }
+        }
+        if (i == *playerCount) {
+            puts("\nNo se ha encontrado ningun resultado");
+        }
+    }
+}
+/*-/PAGOSJUGADOR-*/
+
+
+/*-PAGOSFECHA-*/
+	/*
+	PAGOS POR FRCHA, pregunta la fecha, si la fecha no existe o no es válida, mandar
+	mensaje, si está muestra cuantos pagos se hicieron y su monto en dinero.
+	*/
+void pagosFecha(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+	char fecha[9];
+	int i;
+
+	if (*playerCount == 0) {
+        puts("\nNo hay usuarios por buscar");
+    } else {
+        printf("\nInserte la fecha del pago a buscar\n:");
+        fgets(fecha, 9, stdin);
+
+		fecha[strlen(fecha) - 1] = '\0';
+
+        for(i = 1; i < *playerCount; ++i) {
+            if(strcmp(pagos[i].CHdate, fecha) == 0) {
+				printf("\nCodigo del jugador: %d\nCodigo de entrenador: %d\nCantidad: %d\nSemana: %d", pagos[i].CHplayerID, pagos[i].CHcoachID, pagos[i].CHamount, pagos[i].CHweek);
+            }
+        }
+        if (i == *playerCount) {
+            puts("\nNo se ha encontrado ningun resultado");
+        }
+    }
+}
+/*-/PAGOSFECHA-*/
+
+/*-REGISTRARTORNEO-*/
+void regTourn() {
+	printf("\nInserte el nombre del torneo\n:");
+	fgets(torneos[tournCount].TOname, Lim, stdin);
+
+	printf("\nInserte fecha\n:");
+	fgets(torneos[tournCount].TOdate, 9, stdin);
+
+	printf("\nInserte categoria\n:");
+	fgets(torneos[tournCount].TOcat, Lim2, stdin);
+
+	printf("\nInserte el entrenador\n:");
+	fgets(torneos[tournCount].TOcoach, Lim, stdin);
+
+	printf("\nInserte el costo de entrada\n:");
+	fgets(torneos[tournCount].TOcost, Lim, stdin);
+
+	printf("\nInserte los juegos jugados\n:");
+	fgets(torneos[tournCount].TOgamesDone, Lim, stdin);
+
+	printf("\nInserte los juegos ganados\n:");
+	fgets(torneos[tournCount].TOgamesWon, Lim, stdin);
+
+	printf("\nInserte los juegos perdidos\n:");
+	fgets(torneos[tournCount].TOgamesLost, Lim, stdin);
+
+	printf("\nInserte los juegos empatados\n:");
+	fgets(torneos[tournCount].TOgamesTied, Lim, stdin);
+
+	++tournCount;
+}
+/*-/REGISTRARTORNEO-*/
+/*-----/ENTRENADORES-MENU-----*/
+
+
+/*-----REPORTES-----*/
+	/*
+	Al entrar a REPORTES muestra:
+	REPORTES-ADMIN
+	1. REGISTRO EQUIPOS
+	2. REGISTRO DE JUGADORES
+	3. MOSTRAR EQUIPOS
+	4. BUSCAR EQUIPO POR CATEGORÍA
+	5. BUSCAR EQUIPO POR CÓDIGO
+	6. MOSTRAR TORNEOS
+	7. REGRESAR
+	SELECCIONA UNA OPCIÓN: _
+	*/
+void repAdmin(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+  int op;
+  char discequip;
+
+    do{
+      p("\nREPORTES-ADMIN\n1. REGISTRO EQUIPOS\n2. REGISTRO DE JUGADORES\n3. MOSTRAR EQUIPOS\n4. BUSCAR EQUIPO POR CATEGORÍA\n5. BUSCAR EQUIPO POR CÓDIGO\n6. MOSTRAR TORNEOS\n7. REGRESAR\nSELECCIONA UNA OPCIÓN\n:");
+      scanf("%1d", &op);
+	  getc(stdin);
+
+      switch(op) {
+        case 1:
+			regEquip(playerCount, teamCount);
+		break;
+
+        case 2:
+			regPl(playerCount, teamCount, -1);
+		break;
+
+        case 3:
+			showTeam(teamCount);
+		break;
+
+        case 4:
+			teamCat(teamCount, playerCount);
+		break;
+
+        case 5:
+			equipoXCode(teamCount, playerCount);
+		break;
+
+		case 6:
+            torneo();
+        break;
+
+        case 7:
+          
+		break;
+
+        default: puts("\nOpcion invalida");
+      }
+    } while(op != 7);
+}
+
+
+/*-REGEQUIP-*/
+	/*
+	REGISTRO EQUIPOS, se piden los datos del equipo, así como los integrantes del
+	equipo y se regresa al menú.
+	*/
+void regEquip(int *playerCount, int *teamCount) {
+	char cate[Lim], orario[Lim2];
+	int ide, couch, opc, pass = 1;
+
+	do {
+		cate[0] = '\0';
+		orario[0] = '\0';
+
+		if (*teamCount < Abuelo) {
+			printf("\nInserte el codigo del equipo\n:");
+			scanf("%7d", &ide);
+			getc(stdin);
+
+			for (int i = 0; i < *teamCount; ++i) {
+				if(equipos[i].EQteamID == ide && *teamCount != 0) {
+					pass = 0;
+
+					puts("\nYa existe un equipo con ese codigo");
+
+					break;
+				}
+			}
+
+			if(pass == 1) {
+				printf("\nInserte categoria\n:");
+				fgets(cate, Lim, stdin);
+
+				cate[strlen(cate) - 1] = '\0';
+
+				strcpy(cate, low(cate));
+
+				cate[0] = toupper(cate[0]);
+
+				printf("\nInserte codigo de entrenador\n:");
+				scanf("%7d", &couch);
+				getc(stdin);
+
+				printf("\nInserte horario\n:");
+				fgets(orario, Lim2, stdin);
+
+				orario[strlen(orario) - 1] = '\0';
+
+				strcpy(orario, low(orario));
+
+				orario[0] = toupper(orario[0]);
+
+                printf("\nLos datos obtenidos fueron:\n\nCodigo: %d\nCategoria: %s\nCodigo Entrenador: %d\nHorario: %s\n\nDesea continuar?\n1. Si\n2. No\n:", ide, cate, couch, orario);
+                scanf("%1d", &opc);
+				getc(stdin);
+
+                switch(opc) {
+                    case 1:
+                        equipos[*teamCount].EQteamID = ide;
+                        strcpy(equipos[*teamCount].EQcategory, cate);
+						equipos[*teamCount].EQcoachID = couch;
+						strcpy(equipos[*teamCount].EQschedule, orario);
+
+                        *teamCount = *teamCount + 1;
+
+                        puts("\nRegistro exitoso");
+                    break;
+
+                    case 2:
+
+                    break;
+
+                    default:
+                        puts("\nOpcion invalida");
+                }
+			}
+		}
+        else {
+            puts("\nSe ha alcanzado el limite de equipos");
+        }
+	} while (opc != 1);
+
+	do
+	{
+		printf("\nDesea agregar un jugador?\nSi. 1\n No. 2\n:");
+		scanf("%1d", &opc);
+		getc(stdin);
+
+		switch (opc) {
+			case 1:
+				regPl(playerCount, teamCount, ide);
+			break;
+
+			case 2:
+
+			break;
+
+			default:
+				puts("\nOpcion invalida");
+		}
+	} while (opc != 2);
+}
+/*-/REGEQUIP-*/
+
+
+/*-REGISTROJUGADORES-*/
+    /*
+    REGISTRO DE JUGADORES, pregunta el código del equipo para registrar, si no existe
+    manda mensaje, si existe pode los datos del jugador. Si está lleno el equipo manda
+    mensaje, si no, lo registra y regresa al menú.
+    */
+void regPl(int *playerCount, int *teamCount, int teamID) {
+	char nombre[Lim], ap1[Lim], ap2[Lim], curp[Lim], cumple[Lim2];
+	int ide, opc, pass = 1, teampass = 0;
+	long tel[3];
+
+	if (teamID == -1) {
+		do {
+			printf("\nInserte el codigo del equipo donde desea registrar su jugador\n:");
+			scanf("%7d", &teamID);
+			getc(stdin);
+
+			for(int i = 0; i <= *teamCount; ++i) {
+				if (equipos[i].EQteamID == teamID) {
+					teampass = 1;
+					break;
+				}
+			}
+			if(teampass == 0) {
+				puts("\nNo se encontro el equipo");
+			}
+		} while(teampass == 0);
+	}
+
+	do {
+		nombre[0] = '\0';
+		ap1[0] = '\0';
+		ap2[0] = '\0';
+		curp[0] = '\0';
+
+		if (*playerCount < Abuelo) {
+			puts("Inserte su codigo\n");
+			scanf("%7d", &ide);
+			getc(stdin);
+
+			for (int i = 0; i < *playerCount; ++i) {
+				if(equipos[i].EQteamID == ide && *playerCount != 0) {
+					pass = 0;
+
+					puts("\nYa existe un jugador con ese codigo");
+
+					break;
+				}
+			}
+
+			if(pass == 1) {
+				printf("\nInserte nombre\n:");
+				fgets(nombre, Lim, stdin);
+
+				nombre[strlen(nombre) - 1] = '\0';
+
+				strcpy(nombre, low(nombre));
+
+				nombre[0] = toupper(nombre[0]);
+
+				printf("\nInserte apellido paterno\n:");
+				fgets(ap1, Lim, stdin);
+
+				ap1[strlen(ap1) - 1] = '\0';
+
+				strcpy(ap1, low(ap1));
+
+				ap1[0] = toupper(ap1[0]);
+
+				printf("\nInserte apellido materno\n:");
+				fgets(ap2, Lim, stdin);
+
+				ap2[strlen(ap2) - 1] = '\0';
+
+				strcpy(ap2, low(ap2));
+
+				ap2[0] = toupper(ap2[0]);
+
+				for (int i = 0; i < 3; ++i) {
+					printf("\nInserte su telefono numero %d\n", i + 1);
+					scanf("%13ld", &tel[i]);
+					getc(stdin);
+				}
+
+				printf("\nInserte su fecha de nacimiento\n:");
+				fgets(cumple, Lim, stdin);
+
+				cumple[strlen(cumple) - 1] = '\0';
+
+				strcpy(cumple, low(cumple));
+
+				cumple[0] = toupper(cumple[0]);
+
+				printf("\nInserte su curp\n:");
+				fgets(curp, 22, stdin);
+
+				curp[strlen(curp) - 1] = '\0';
+
+				strcpy(curp, up(curp));
+
+                printf("\nLos datos obtenidos fueron:\n\nCodigo: %d\nNombre: %s\nApellido Paterno: %s\nApellido Materno: %s\nTelefono 1: %ld\nTelefono 2: %ld\nTelefono 3: %ld\nCumpleaños: %s\n\nDesea continuar?\n1. Si\n2. No\n:", ide, nombre, ap1, ap2, tel[0], tel[1], tel[2], cumple);
+                scanf("%1d", &opc);
+				getc(stdin);
+
+                switch(opc) {
+                    case 1:
+                        jugadores[*playerCount].PLplayerID = ide;
+						jugadores[*playerCount].PLteamID = teamID;
+                        strcpy(jugadores[*playerCount].PLname, nombre);
+						strcpy(jugadores[*playerCount].PLlastName1, ap1);
+						strcpy(jugadores[*playerCount].PLlastName2, ap2);
+
+						for (int i = 0; i < 3; ++i) {
+							jugadores[*playerCount].PLphoneNumber[i] = tel[i];
+						}
+
+						strcpy(jugadores[*playerCount].PLbday, cumple);
+
+                        *playerCount = *playerCount + 1;
+
+                        puts("\nRegistro exitoso");
+                    break;
+
+                    case 2:
+
+                    break;
+
+                    default:
+                        puts("\nOpcion invalida");
+                }
+			}
+		}
+        else {
+            puts("\nSe ha alcanzado el limite de equipos");
+        }
+	} while (opc != 1);
+}
+/*-/REGISTROJUGADORES-*/
+
+
+/*-SHOWTEAM-*/
+	/*
+	MOSTRAR EQUIPOS, se muestra la lista de equipos y regresa al menú.
+	*/
+void showTeam(int *teamCount) {
+    if (*teamCount == 0) {
+        puts("\nNo hay equipos por mostrar");
+    }
+    else {
+        for(int i = 0; i < *teamCount; ++i) {
+            printf("\nEquipo %d:\n\nCodigo: %d\nCategoria: %s\nCodigo Entrenador: %d\nHorario: %s\n", i + 1, equipos[i].EQteamID, equipos[i].EQcategory, equipos[i].EQcoachID, equipos[i].EQschedule);
+        }
+    }
+}
+/*-/SHOWTEAM-*/
+
+
+/*-TEAMCAT-*/
+	/*
+	BUSCAR EQUIPO POR CATEGORÍA, se pregunta la categoría, si no se encuentra se
+	manda mensaje, si se encuentra se muestra los datos del equipo y la lista de los
+	integrantes del equipo, para cada equipo (recuerda que puede haber varios equipos de
+	una sola categoría) y regresa al menú.
+	*/
+void teamCat(int *teamCount, int *playerCount) {
+	char cate[Lim];
+
+    if (*teamCount == 0) {
+        puts("\nNo hay equipos por mostrar");
+    }
+    else {
+		printf("\nInserte la categoria que desea buscar\n:");
+		fgets(cate, Lim, stdin);
+
+		cate[strlen(cate) - 1] = '\0';
+
+		strcpy(cate, low(cate));
+
+		cate[0] = toupper(cate[0]);
+
+        for(int i = 0; i <= *teamCount; ++i) {
+			if (strcmp(equipos[i].EQcategory, cate) == 0) {
+				printf("\nEquipo %d:\n\nCodigo: %d\nCategoria: %s\nCodigo Entrenador: %d\nHorario: %s\n", i + 1, equipos[i].EQteamID, equipos[i].EQcategory, equipos[i].EQcoachID, equipos[i].EQschedule);
+
+				printf("Integrantes:\n");
+				for (int j = 0; j < *playerCount; ++j) {
+					if (jugadores[j].PLteamID == equipos[i].EQteamID) {
+						printf("%s\n", jugadores[j].PLname);
+					}
+				}
+
+				break;
+			}
+        }
+    }
+}
+/*-/TEAMCAT-*/
+
+
+/*-EQUIPOXCODE-*/
+	/*
+	BUSCAR EQUIPO POR CÓDIGO, se pregunta el código del equipo, si no se encuentra
+	muestra mensaje, si se encuentra muestra los datos del equipo y sus integrantes y
+	regresa al menú.
+	REGRESAR, regresa al menú anterior.
+	*/
+void equipoXCode(int *teamCount, int *playerCount) {
+	int ide;
+
+    if (*teamCount == 0) {
+        puts("\nNo hay equipos por mostrar");
+    }
+    else {
+		printf("\nInserte el codigo que desea buscar\n:");
+		scanf("%7d", &ide);
+		getc(stdin);
+
+        for(int i = 0; i <= *teamCount; ++i) {
+			if (equipos[i].EQteamID == ide) {
+				printf("\nEquipo %d:\n\nCodigo: %d\nCategoria: %s\nCodigo Entrenador: %d\nHorario: %s\n", i + 1, equipos[i].EQteamID, equipos[i].EQcategory, equipos[i].EQcoachID, equipos[i].EQschedule);
+
+				printf("Integrantes:\n");
+				for (int j = 0; j < *playerCount; ++j) {
+					if (jugadores[j].PLteamID == equipos[i].EQteamID) {
+						printf("%s\n", jugadores[j].PLname);
+					}
+				}
+
+				break;
+			}
+        }
+    }
+}
+/*-----/REPORTES-----*/
+
+/*----------/MENU-ADMIN----------*/
+
+
+/*----------MENU-USUARIO----------*/
+	/*
+	Cuando se entra como entrenador, muestra el siguiente menú:
+	MENÚ ENTRENADOR-NOM_ENTRENADOR
+	A. PAGOS
+	B. TORNEOS
+	C. REGRESAR.
+	*/
+int menuUsuario(int *coachCount, int *playerCount, int *teamCount, int *payCount) {
+    char opc;
+
+    do {
+        printf("\nMENÚ ENTRENADOR-NOM_ENTRENADOR\nA. PAGOS\nB. TORNEOS\nC. REGRESAR.\nSELECCIONA UNA OPCION\n:");
+        scanf("%c", &opc);
+		getc(stdin);
+
+        switch (opc) {
+			case 'A':case 'a':
+				mkPay(coachCount, playerCount, payCount);
+			break;
+
+			case 'B':case 'b':
+				torneo();
+			break;
+
+			case 'C':case 'c':
+				login(coachCount, playerCount, teamCount, payCount);
+			break;
+
+            default:puts("\nOPCION INVALIDA");break;
+        }
+    } while (!(opc == 'c' || opc == 'C'));
+
+	return 3;
+}
+
+
+/*-MKPAY-*/
+	/*
+	PARA CADA CASO, CONSIDERE:
+	PAGOS, se pode el código del jugador, del entrenador que registra, fecha, cantidad de
+	pago, se debe llevar control de la semana y año de pago,
+	*/
+void mkPay(int *coachCount, int *playerCount, int *payCount) {
+	int player, couch, cantidad, semana, pass = 0;
+	char fecha[9];
+
+	do {
+		fecha[0] = '\0';
+		printf("\nInserte el codigo del jugador a pagar\n:");
+		scanf("%7d", &player);
+		getc(stdin);
+
+		for (int i = 0; i < *playerCount; ++i) {
+			if (jugadores[i].PLplayerID == player) {
+				pass = 1;
+
+				break;
+			}
+		}
+
+		if (pass == 0) {
+			puts("\nNo se encontro tal jugador");
+		} else {
+			pass = 0;
+
+			printf("\nInserte el codigo del entrenador\n:");
+			scanf("%7d", &couch);
+			getc(stdin);
+
+			for (int i = 0; i < *coachCount; ++i) {
+				if (entrenadores[i].TRcode == couch) {
+					pass = 1;
+
+					break;
+				}
+			}
+
+			if (pass == 0) {
+				puts("\nNo se encontro tal entrenador");
+			} else {
+				printf("\nInserte la fecha de pago\n:");
+				fgets(fecha, 9, stdin);
+
+				fecha[strlen(fecha) - 1] = '\0';
+
+				printf("\nInserte la semana de pago (desde el registro del jugador)\n:");
+				scanf("%7d", &semana);
+				getc(stdin);
+
+				printf("\nInserte la cantidad de pago\n:");
+				scanf("%7d", &cantidad);
+				getc(stdin);
+
+				printf("\nLos datos obtenidos fueron\nCodigo de jugador: %d\nCodigo de entrenador: %d\nFecha de pago: %s\nSemana de pago: %d\nCantidad: %d\n\nDesea continuar?\n1. Si\n2. No\n:", player, couch, fecha, semana, cantidad);
+				scanf("%1d", &pass);
+				getc(stdin);
+
+				switch (pass) {
+					case 1:
+						pagos[*payCount].CHplayerID = player;
+						pagos[*payCount].CHcoachID = couch;
+						strcpy(pagos[*payCount].CHdate, fecha);
+						pagos[*payCount].CHweek = semana;
+						pagos[*payCount].CHamount = cantidad;
+
+						puts("\nPago exitoso");
+					break;
+
+					case 2:
+
+					break;
+
+					default:
+						puts("\nOpcion invalida");
+				}
+			}
+		}
+	} while (pass == 0);
+}
+/*-/MKPAY-*/
+
+
+/*-TORNEOS-*/
+	/*
+	TORNEOS, consulta de tornes activos, fecha del torneo, nombre, categoría, entrenador,
+	costo, cantidad de juegos jugados, juegos ganados, juegos perdidos y juegos empatados,
+	juegos restantes se calcula solo
+	REGRESAR. regresa al menú anterior
+	*/
+void torneo() {
+	for(int i = 0; i < tournCount; ++i) {
+		printf("\nNombre: %s\nFecha: %s\nCategoria: %s\nEntrenador: %s\nPrecio: %s\nJuegos jugados: %s\nJuegos ganados: %s\nJuegos perdidos: %s\nJuegos empatados: %s\n", torneos[i].TOname, torneos[i].TOdate, torneos[i].TOcat, torneos[i].TOcoach, torneos[i].TOcost, torneos[i].TOgamesDone, torneos[i].TOgamesWon, torneos[i].TOgamesLost, torneos[i].TOgamesTied);
+	}printf("Hay %d torneos\n", tournCount);
+
+}
+/*-/TORNEOS-*/
+/*----------/MENU-USUARIO----------*/

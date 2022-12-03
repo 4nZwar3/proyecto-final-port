@@ -1,0 +1,22 @@
+#ifndef _LUCIO_H_
+#define _LUCIO_H_
+#include <ctype.h>
+
+/*Funcion para convertir a minusculas un string (linux)*/
+inline char* low(char* string) {
+    for(char *c = string; *c; ++c) {
+        *c = tolower(*c);
+    }
+
+    return string;
+}
+
+inline char* up(char* string) {
+    for(char *c = string; *c; ++c) {
+        *c = toupper(*c);
+    }
+
+    return string;
+}
+
+#endif

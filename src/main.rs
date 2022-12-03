@@ -16,10 +16,12 @@ de la información generada, los adeudos, torneos activos y datos de los equipos
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use std::{io, vec, fmt::*};
+use std::{io::{self, Write}, vec, fmt::*, process::exit};
 use colored::*;
 use core::mem::size_of;
 use rand::prelude::*;
+use scanf::scanf;
+use libc::fgets;
 
 const LIM: u8 = 30;
 const LIM2: u8 = 60;
@@ -37,7 +39,7 @@ pub struct Team {
     EQteamID: String,
     EQcategory: String,
     EQcoachID: String,
-    EQschedule: String,
+    EQschedule: String
 }
 /*----------/STRUCT-EQUIPO----------*/
 
@@ -56,7 +58,7 @@ pub struct Trainer {
     TRlastName2: String,
     TRcareer: String,
     TRsalary: String,
-    TRregDate: String,
+    TRregDate: String
 }
 
 impl Trainer {
@@ -82,18 +84,34 @@ pub struct Player {
     PLphonenumber2: String,
     PLphonenumber3: String,
     PLbday: String,
-    PLcurp: String,
+    PLcurp: String
 }
 /*----------/STRUCT-JUGADOR----------*/
 
 
 /*----------STRUCT-PAGOS----------*/
-//Inserte struct aqui.
+pub struct Check {
+    CHplayerID: String,
+    CHcoachID: String,
+    CHamount: String,
+    CHdate: String,
+    CHweek: String
+}
 /*----------/STRUCT-PAGOS----------*/
 
 
 /*----------STRUCT-TORNEOS----------*/
-//Inserte struct aqui.
+pub struct Tourn{
+	TOname: String,
+	TOdate: String,
+	TOcat: String,
+	TOcoachID: String,
+	TOcost: String,
+	TOgamesDone: String,
+	TOgamesWon: String,
+	TOgamesLost: String,
+	TOgamesTied: String
+}
 /*----------/STRUCT-TORNEOS----------*/
 
 
@@ -119,15 +137,13 @@ fn main() {
 	*/
 fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
     loop {
-        println!("\n{}\n{}\n{}\n\nCAPTURA UNA OPCIÓN:", "ATLAS RUSO".bold().yellow().on_red(), "1. INICIAR".green(), "2. SALIR".cyan());
-        let mut s_opt = String::new();
-        io::stdin().read_line(&mut s_opt).expect(&NTR.red());
-        
-        let opt: u8 = match s_opt.trim().parse() {
+        print!("\n{}\n{}\n{}\n\n{}\n:", "ATLAS RUSO".bold().yellow().on_red(), "1. INICIAR".green(), "2. SALIR".cyan(), "CAPTURA UNA OPCIÓN".bright_white());
+        let mut opt: u8 = 0;
+        match scanf!("{u8}", opt) {
             Ok(num) => num,
             Err(_) => {
-                println!("{}", NTN.red());
-                continue
+                println!("{}", INVALID.red());
+                continue;
             }
         };
 
@@ -152,34 +168,56 @@ fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos:
 }
 
 fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
-    let mut usr = String::new();
-    let mut pwrd = String::new();
+    let j:u8 = 0;
+    while j == 0 {
+        let mut usr = String::new();
+        let mut pwrd = String::new();
+        print!("\nInserte su nombre de usuario\n:");
 
-    println!("\nInserte su nombre de usuario:");
-    io::stdin().read_line(&mut usr).expect(&"\nUsuario no leido".red());
+        io::stdout().flush().expect("\nflush fallido");
 
-    println!("\nInserte su contraseña:");
-    io::stdin().read_line(&mut pwrd).expect(&"\nContraseña no leida".red());
-
-    for i in 0..entrenadores.len() {
-        let usuario: &str = &usr.trim();
-        let contra: &str = &pwrd.trim();
-        if usuario == entrenadores[i].TRusrname {
-            if contra == entrenadores[i].TRpassword {
-                if i == 0 {
-                    menu_admin(entrenadores, jugadores, equipos);
-                    break;
-                } else {
-                    println!("\nImagina que te envié a menu_usuario"); //Reemplazar por 'menu_usuario'
-                    break;
-                } 
-            } else {
-                println!("{}", "\nClave incorrecta".red());
+        match io::stdin().read_line(&mut usr) {
+            Ok(str) => str,
+            Err(_) => {
+                println!("{}", "\nUsuario no leido".red());
+                continue;
             }
-        } else {
-            println!("{}", "\nUsuario no reconocido".red());
+        };
+    
+        print!("\nInserte su contraseña\n:");
+
+        io::stdout().flush().expect("\nflush fallido");
+
+        match io::stdin().read_line(&mut pwrd) {
+            Ok(str) => str,
+            Err(_) => {
+                println!("{}", "\nUsuario no leido".red());
+                continue;
+            }
+        };
+    
+        for i in 0..entrenadores.len() {
+            let usuario: &str = &usr.trim();
+            let contra: &str = &pwrd.trim();
+            if usuario == entrenadores[i].TRusrname {
+                if contra == entrenadores[i].TRpassword {
+                    if i == 0 {
+                        menu_admin(entrenadores, jugadores, equipos);
+                        let j = 1;
+                        break;
+                    } else {
+                        println!("\nImagina que te envié a menu_usuario"); //Reemplazar por 'menu_usuario'
+                        break;
+                    } 
+                } else {
+                    println!("{}", "\nClave incorrecta".red());
+                }
+            } else {
+                println!("{}", "\nUsuario no reconocido".red());
+            }
         }
     }
+
 }
 
 /*----------MENU-ADMIN----------*/
@@ -193,16 +231,13 @@ fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: 
 	*/
 fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
     loop {
-        let mut opc = String::new();
-        println!("\n{}\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\nSELECCIONA UNA OPCION:", "ATLAS RUSO-ADMIN".bold());
-    
-        io::stdin().read_line(&mut opc).expect(&NTR.red());
-    
-        let opc:u8 = match opc.trim().parse() {
+        print!("\n{}\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\nSELECCIONA UNA OPCIÓN\n:", "ATLAS RUSO-ADMIN".bold());
+        let mut opc: u8 = 0;
+        match scanf!("{u8}", opc) {
             Ok(num) => num,
             Err(_) => {
-                println!("{}", NTN.red());
-                continue
+                println!("{}", INVALID.red());
+                continue;
             }
         };
     
@@ -231,15 +266,13 @@ fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equi
 	*/
 fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
     loop {
-        let mut opcion = String::new();
-        println!("\n{}\n1. REGISTRO ENTRENADOR\n2. MOSTRAR ENTRENADORES\n3. BUSCAR ENTRENADOR\n4. EQUIPOS POR ENTRENADOR\n5. PAGOS POR JUGADOR\n6. PAGOS POR FECHA\n7. REGISTRAR TORNEO\n8. REGRESAR\nSELECCIONA UNA OPCIÓN:", "ENTRENADORES-ADMIN".bold());
-        io::stdin().read_line(&mut opcion).expect(&INVALID.red());
-
-        let opcion:u8 = match opcion.trim().parse() {
+        print!("\n{}\n1. REGISTRO ENTRENADOR\n2. MOSTRAR ENTRENADORES\n3. BUSCAR ENTRENADOR\n4. EQUIPOS POR ENTRENADOR\n5. PAGOS POR JUGADOR\n6. PAGOS POR FECHA\n7. REGISTRAR TORNEO\n8. REGRESAR\nSELECCIONA UNA OPCIÓN\n:", "ENTRENADORES-ADMIN".bold());
+        let mut opcion: u8 = 0;
+        match scanf!("{u8}", opcion) {
             Ok(num) => num,
             Err(_) => {
-                println!("{}", NTN.red());
-                continue
+                println!("{}", INVALID.red());
+                continue;
             }
         };
 
@@ -252,8 +285,9 @@ fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player
                 }
                 continue
             },
-            8 => break
-            ,
+            2 => mostrar(entrenadores),
+            
+            8 => break,
             _ => println!("{}", INVALID.red())
         };
     }
@@ -270,18 +304,17 @@ fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player
 	*/
 fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
     loop {
-        println!("\nInserte su código");
-        let mut codiguito = String::new();
-    
-        io::stdin().read_line(&mut codiguito).expect(&"\nNo se leyó el código".red());
-        
-        codiguito = match codiguito.trim().parse::<f32>() {
+        print!("\nInserte su código\n:");
+        let mut codiguito = 0;
+        match scanf!("{}", codiguito) {
             Ok(num) => num,
             Err(_) => {
-                println!("{}", NTN.red());
-                continue
+                println!("{}", "\nCódigo no leido".red());
+                continue;
             }
-        }.to_string();
+        };
+        
+        let codiguito = codiguito.to_string();
 
         for i in 0..entrenadores.len() {
             if entrenadores[i].TRcode.to_string() == codiguito {
@@ -292,41 +325,48 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
                 }
             } else {
                 if i == entrenadores.len() - 1 {
-                    let (mut usuarito, mut contraseñita, mut nombresito, mut apsito, mut amsito, mut carrerita, mut salarito, mut dia_reg, usr_num)
-                    =   (String::new()       , String::new()           , String::new()         , String::new()     , String::new()     , String::new()        , String::new()       , String::new()      , String::new());
+                    let (mut usuarito, mut contraseñita, mut nombresito, mut apsito, mut amsito, mut carrerita, mut dia_reg, usr_num)
+                    =   (String::new()       , String::new()           , String::new()         , String::new()     , String::new()     , String::new()        , String::new()      , String::new());
 
-                    println!("\nInserte su nombre:");
+                    print!("\nInserte su Nombre\n:");
+                    io::stdout().flush().expect("\nflush fallido");
                     io::stdin().read_line(&mut nombresito).expect(&"Nombre no leido".red());
 
                     nombresito = nombresito.trim().to_string();
         
-                    println!("\nInserte su apellido paterno:");
+                    print!("\nInserte su Apellido Paterno\n:");
+                    io::stdout().flush().expect("\nflush fallido");
                     io::stdin().read_line(&mut apsito).expect(&"Apellido no leido".red());
 
                     apsito = apsito.trim().to_string();
         
-                    println!("\nInserte su apellido materno:");
+                    print!("\nInserte su Apellido Materno\n:");
+                    io::stdout().flush().expect("\nflush fallido");
                     io::stdin().read_line(&mut amsito).expect(&"Apellido no leido".red());
         
                     amsito = amsito.trim().to_string();
 
-                    println!("\nInserte su carrera:");
+                    print!("\nInserte su Carrera\n:");
+                    io::stdout().flush().expect("\nflush fallido");
                     io::stdin().read_line(&mut carrerita).expect(&"Carrera no leida".red());
 
                     carrerita = carrerita.trim().to_string();
         
-                    println!("\nInserte su salario:");
-                    io::stdin().read_line(&mut salarito).expect(&"Salario no leido".red());
-
-                    salarito = match salarito.trim().parse::<f32>() {
+                    print!("\nInserte su Salario\n:");
+                    io::stdout().flush().expect("\nflush fallido");
+                    let mut salarito = 0;
+                    match scanf!("{}", salarito) {
                         Ok(num) => num,
                         Err(_) => {
-                            println!("{}", NTN.red());
-                            continue
+                            println!("{}", "\nSalario no leido".red());
+                            continue;
                         }
-                    }.to_string();
+                    };
         
-                    println!("\nInserte su día de registro:");
+                    let salarito = salarito.to_string();
+        
+                    print!("\nInserte su Día de Registro\n:");
+                    io::stdout().flush().expect("\nflush fallido");
                     io::stdin().read_line(&mut dia_reg).expect(&"Dia no leido".red());
 
                     dia_reg = dia_reg.trim().to_string();
@@ -358,29 +398,44 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
                     usuarito = usuarito.to_lowercase();
         
                     contraseñita.push_str(&usuarito);
-        
-                    println!("\nSe han obtenido los siguientes datos:\nCódigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\nCarrera: {}\nSalario: ${}\nDia de registro: {}\n\nSu usuario será:{}\nSu contraseña será: {}\n\nDesea continuar?\n1. Si\n2. No:"
-                                                                        ,codiguito.blue(),nombresito.blue(),apsito.blue(),amsito.blue(),  carrerita.blue(), salarito.blue(),dia_reg.blue(),usuarito.bright_black(), contraseñita.bright_black());
-                    let mut opt = String::new();
-                    io::stdin().read_line(&mut opt).expect(&INVALID.red());
+                    loop {
+                        print!("\nSe han obtenido los siguientes datos:\nCódigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\nCarrera: {}\nSalario: ${}\nDia de Registro: {}\n\nSu Usuario será: {}\nSu Contraseña será: {}\n\nDesea continuar?\n1. Si\n2. No\n:"
+                        ,codiguito.blue(),nombresito.blue(),apsito.blue(),amsito.blue(),  carrerita.blue(), salarito.blue(),dia_reg.blue(),usuarito.bright_black(), contraseñita.bright_black());
+                        io::stdout().flush().expect("\nflush fallido");
+                        let mut opt:u8 = 0;
+                        match scanf!("{}", opt) {
+                            Ok(num) => num,
+                            Err(_) => {
+                                println!("{}", INVALID.red());
+                                continue;
+                            }
+                        };
 
-                    let opt:u8 = match opt.trim().parse() {
-                        Ok(num) => num,
-                        Err(_) => {
-                            println!("{}", NTN.red());
+                        match opt {
+                        1 =>
+                        return Trainer { TRusrname: usuarito, TRpassword: contraseñita, TRcode: codiguito.to_string(), TRname: nombresito, TRlastName1: apsito, TRlastName2: amsito, TRcareer: carrerita, TRsalary: salarito, TRregDate: dia_reg }
+                        ,
+                        2 => break,
+                        _ => {
+                            println!("{}", &INVALID.red());
                             continue
                         }
-                    };
-                    
-                    match opt {
-                        1 =>
-                            return Trainer { TRusrname: usuarito, TRpassword: contraseñita, TRcode: codiguito.to_string(), TRname: nombresito, TRlastName1: apsito, TRlastName2: amsito, TRcareer: carrerita, TRsalary: salarito, TRregDate: dia_reg }
-                        ,
-                        _ => continue
+                        }
                     }
+
                 }
             } 
         }
     }
 }
 /*-SIGNUP-*/
+
+fn mostrar(entrenadores: &Vec<Trainer>) {
+    if entrenadores.len() == 1 {
+        println!("\nNo hay usuarios por mostrar");
+    } else {
+        for i in 1..entrenadores.len() {
+            println!("\nCodigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}", entrenadores[i].TRcode.green(), entrenadores[i].TRname.green(), entrenadores[i].TRlastName1.green(), entrenadores[i].TRlastName2.green());
+        }
+    }
+}
