@@ -168,7 +168,7 @@ fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos:
 }
 
 fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
-    let j:u8 = 0;
+    let mut j:u8 = 0;
     while j == 0 {
         let mut usr = String::new();
         let mut pwrd = String::new();
@@ -202,8 +202,7 @@ fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: 
             if usuario == entrenadores[i].TRusrname {
                 if contra == entrenadores[i].TRpassword {
                     if i == 0 {
-                        menu_admin(entrenadores, jugadores, equipos);
-                        let j = 1;
+                        j = menu_admin(entrenadores, jugadores, equipos);
                         break;
                     } else {
                         println!("\nImagina que te envié a menu_usuario"); //Reemplazar por 'menu_usuario'
@@ -229,7 +228,7 @@ fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: 
 	3. CAMBIAR USUARIO
 	SELECCIONA UNA OPCION: _
 	*/
-fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
+fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) -> u8 {
     loop {
         print!("\n{}\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\nSELECCIONA UNA OPCIÓN\n:", "ATLAS RUSO-ADMIN".bold());
         let mut opc: u8 = 0;
@@ -243,7 +242,8 @@ fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equi
     
         match opc {
             1 => entrenadores_menu(entrenadores, jugadores, equipos),
-            4 => break,
+            3 => return 0,
+            4 => return 1,
             _ => println!("{}", INVALID.red())
         }     
     }
@@ -286,7 +286,7 @@ fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player
                 continue
             },
             2 => mostrar(entrenadores),
-            
+            3 => buscar(entrenadores),
             8 => break,
             _ => println!("{}", INVALID.red())
         };
@@ -430,6 +430,11 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
 }
 /*-SIGNUP-*/
 
+/*-MOSTRAR-*/
+	/*
+	Para MOSTRAR ENTRENADORES, se muestra la lista de entrenadores, código, nombre y
+	apellidos, regresa al menú de ENTRENADORES.
+	*/
 fn mostrar(entrenadores: &Vec<Trainer>) {
     if entrenadores.len() == 1 {
         println!("\nNo hay usuarios por mostrar");
@@ -439,3 +444,39 @@ fn mostrar(entrenadores: &Vec<Trainer>) {
         }
     }
 }
+/*-/MOSTRAR-*/
+
+/*-BUSCAR-*/
+	/*
+	Para BUSCAR ENTRENADOR, se busca por código, si no se encuentra imprime mensaje,
+	si se encuentra muestra su información, regresa al menú de ENTRENADORES.
+	*/
+fn buscar(entrenadores: &Vec<Trainer>) {
+    let mut j = 0;
+    let mut codiguito = String::new();
+
+    if entrenadores.len() == 1 {
+        println!("\nNo hay usuarios por buscar");
+    } else {
+        print!("\nInserte el codigo del entrenador a buscar\n:");
+
+        io::stdout().flush().expect("\nflush fallido");
+        io::stdin().read_line(&mut codiguito).expect(&"Código no leido".red());
+
+        codiguito = codiguito.trim().to_string();
+
+        let codiguito = codiguito.to_string();
+
+        for i in 0..entrenadores.len() {
+            if entrenadores[i].TRcode == codiguito {
+            print!("\nCodigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\n", entrenadores[i].TRcode.green(), entrenadores[i].TRname.green(), entrenadores[i].TRlastName1.green(), entrenadores[i].TRlastName2.green());
+                j = 1;
+                break;
+            }
+        }
+        if j == 0 {
+            println!("\nNo se ha encontrado ningun resultado");
+        }
+    }
+}
+/*-/BUSCAR-*/
