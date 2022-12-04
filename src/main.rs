@@ -16,12 +16,11 @@ de la información generada, los adeudos, torneos activos y datos de los equipos
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use std::{io::{self, Write}, vec, fmt::*, process::exit};
+use std::{io::{self, Write}, vec, fmt::*, process::exit, f32::consts::E};
 use colored::*;
 use core::mem::size_of;
 use rand::prelude::*;
 use scanf::scanf;
-use libc::fgets;
 
 const LIM: u8 = 30;
 const LIM2: u8 = 60;
@@ -137,7 +136,7 @@ fn main() {
 	*/
 fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
     loop {
-        print!("\n{}\n{}\n{}\n\n{}\n:", "ATLAS RUSO".bold().yellow().on_red(), "1. INICIAR".green(), "2. SALIR".cyan(), "CAPTURA UNA OPCIÓN".bright_white());
+        print!("\n{}\n{}\n{}\n\n{}\n:", "ATLAS RUSO".bold().yellow().on_red(), "1. INICIAR".green(), "2. SALIR".cyan(), "CAPTURA UNA OPCIÓN.".bright_white());
         let mut opt: u8 = 0;
         match scanf!("{u8}", opt) {
             Ok(num) => num,
@@ -146,15 +145,13 @@ fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos:
                 continue;
             }
         };
-
         match opt {
             1 => {
                 login(entrenadores, jugadores, equipos);
                 continue;
             },
-
             2 => {
-                println!("{}", "\nFin del programa".bold().cyan());
+                println!("{}", "\nFin del programa.".bold().cyan());
                 break;
             },
             _ => {
@@ -164,39 +161,45 @@ fn inicio(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos:
                 
         }
     }
-    
 }
-
 fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
-    let mut j:u8 = 0;
-    while j == 0 {
+    let mut j:bool = false;
+    let mut times = 0;
+    while !j {
         let mut usr = String::new();
         let mut pwrd = String::new();
-        print!("\nInserte su nombre de usuario\n:");
-
-        io::stdout().flush().expect("\nflush fallido");
-
+        print!("{}", "\nInserte su nombre de usuario.\n:".bright_white());
+        match io::stdout().flush() {
+            Ok(fl) => fl,
+            Err(_) => {
+                println!("{}", "\nFlush fallido.".red());
+                continue;
+            }
+        }
         match io::stdin().read_line(&mut usr) {
             Ok(str) => str,
             Err(_) => {
-                println!("{}", "\nUsuario no leido".red());
+                println!("{}", "\nUsuario no leido.".red());
                 continue;
             }
         };
-    
-        print!("\nInserte su contraseña\n:");
-
-        io::stdout().flush().expect("\nflush fallido");
-
+        print!("{}", "\nInserte su contraseña.\n:".bright_white());
+        match io::stdout().flush() {
+            Ok(fl) => fl,
+            Err(_) => {
+                println!("{}", "\nFlush fallido.".red());
+                continue;
+            }
+        }
         match io::stdin().read_line(&mut pwrd) {
             Ok(str) => str,
             Err(_) => {
-                println!("{}", "\nUsuario no leido".red());
+                println!("{}", "\nUsuario no leido.".red());
                 continue;
             }
         };
-    
         for i in 0..entrenadores.len() {
+            times += 1;
             let usuario: &str = &usr.trim();
             let contra: &str = &pwrd.trim();
             if usuario == entrenadores[i].TRusrname {
@@ -205,20 +208,20 @@ fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: 
                         j = menu_admin(entrenadores, jugadores, equipos);
                         break;
                     } else {
-                        println!("\nImagina que te envié a menu_usuario"); //Reemplazar por 'menu_usuario'
+                        println!("\nImagina que te envié a menu_usuario."); //Reemplazar por 'menu_usuario'
+                        j = true;
                         break;
                     } 
                 } else {
-                    println!("{}", "\nClave incorrecta".red());
+                    println!("{}", "\nClave incorrecta.".red());
                 }
-            } else {
-                println!("{}", "\nUsuario no reconocido".red());
-            }
+            } 
+        }
+        if times == entrenadores.len() {
+            println!("{}", "\nUsuario no reconocido.".red());
         }
     }
-
 }
-
 /*----------MENU-ADMIN----------*/
 	/*
 	Al entrar, el ADMIN podrá ver el siguiente menú:
@@ -228,9 +231,9 @@ fn login(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: 
 	3. CAMBIAR USUARIO
 	SELECCIONA UNA OPCION: _
 	*/
-fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) -> u8 {
+fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) -> bool {
     loop {
-        print!("\n{}\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\nSELECCIONA UNA OPCIÓN\n:", "ATLAS RUSO-ADMIN".bold());
+        print!("\n{}\n1. ENTRENADORES\n2. REPORTES\n3. CAMBIAR USUARIO\n4. SALIR\n{}\n:", "ATLAS RUSO-ADMIN".bold(), "SELECCIONA UNA OPCIÓN.".bright_white());
         let mut opc: u8 = 0;
         match scanf!("{u8}", opc) {
             Ok(num) => num,
@@ -239,17 +242,14 @@ fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equi
                 continue;
             }
         };
-    
         match opc {
             1 => entrenadores_menu(entrenadores, jugadores, equipos),
-            3 => return 0,
-            4 => return 1,
+            3 => return false,
+            4 => return true,
             _ => println!("{}", INVALID.red())
         }     
     }
-
 }
-
 /*-----ENTRENADORES-MENU-----*/
 	/*
 	Al entrar a entrenadores verá el siguiente menú:
@@ -266,7 +266,7 @@ fn menu_admin(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equi
 	*/
 fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player>, equipos: &mut Vec<Team>) {
     loop {
-        print!("\n{}\n1. REGISTRO ENTRENADOR\n2. MOSTRAR ENTRENADORES\n3. BUSCAR ENTRENADOR\n4. EQUIPOS POR ENTRENADOR\n5. PAGOS POR JUGADOR\n6. PAGOS POR FECHA\n7. REGISTRAR TORNEO\n8. REGRESAR\nSELECCIONA UNA OPCIÓN\n:", "ENTRENADORES-ADMIN".bold());
+        print!("\n{}\n1. REGISTRO ENTRENADOR\n2. MOSTRAR ENTRENADORES\n3. BUSCAR ENTRENADOR\n4. EQUIPOS POR ENTRENADOR\n5. PAGOS POR JUGADOR\n6. PAGOS POR FECHA\n7. REGISTRAR TORNEO\n8. REGRESAR\n{}\n:", "ENTRENADORES-ADMIN".bold(), "SELECCIONA UNA OPCIÓN.".bright_white());
         let mut opcion: u8 = 0;
         match scanf!("{u8}", opcion) {
             Ok(num) => num,
@@ -278,21 +278,20 @@ fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player
 
         match opcion {
             1 => {
-                if entrenadores.len() != ABUELO {
+                if entrenadores.len() < ABUELO {
                     entrenadores.push(signup(entrenadores));
                 } else {
-                    println!("\nLimite de usuarios alcanzado");
+                    println!("{}", "\nLímite de usuarios alcanzado.".red());
                 }
-                continue
             },
             2 => mostrar(entrenadores),
             3 => buscar(entrenadores),
+            4 => equipoXCoach(entrenadores, equipos),
             8 => break,
             _ => println!("{}", INVALID.red())
         };
     }
 }
-
 /*-SIGNUP-*/
 	/*
 	Para REGISTRO, se pedirán los siguientes datos: CODIGO, NOMBRE, AP, AM,
@@ -304,91 +303,139 @@ fn entrenadores_menu(entrenadores: &mut Vec<Trainer>, jugadores: &mut Vec<Player
 	*/
 fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
     loop {
-        print!("\nInserte su código\n:");
+        print!("{}", "\nInserte su Código.\n:".bright_white());
         let mut codiguito = 0;
         match scanf!("{}", codiguito) {
             Ok(num) => num,
             Err(_) => {
-                println!("{}", "\nCódigo no leido".red());
+                println!("{}", "\nCódigo no leido.".red());
                 continue;
             }
         };
-        
         let codiguito = codiguito.to_string();
-
         for i in 0..entrenadores.len() {
             if entrenadores[i].TRcode.to_string() == codiguito {
                 if i == 0{
-                    println!("{}", "\nEse usuario ya existe y es el admin".red());
+                    println!("{}", "\nEse usuario ya existe y es el admin.".red());
                 } else {
-                println!("{}", "\nEse usuario ya existe".red());
+                println!("{}", "\nEse usuario ya existe.".red());
                 }
             } else {
                 if i == entrenadores.len() - 1 {
                     let (mut usuarito, mut contraseñita, mut nombresito, mut apsito, mut amsito, mut carrerita, mut dia_reg, usr_num)
                     =   (String::new()       , String::new()           , String::new()         , String::new()     , String::new()     , String::new()        , String::new()      , String::new());
-
-                    print!("\nInserte su Nombre\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    io::stdin().read_line(&mut nombresito).expect(&"Nombre no leido".red());
-
-                    nombresito = nombresito.trim().to_string();
-        
-                    print!("\nInserte su Apellido Paterno\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    io::stdin().read_line(&mut apsito).expect(&"Apellido no leido".red());
-
-                    apsito = apsito.trim().to_string();
-        
-                    print!("\nInserte su Apellido Materno\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    io::stdin().read_line(&mut amsito).expect(&"Apellido no leido".red());
-        
-                    amsito = amsito.trim().to_string();
-
-                    print!("\nInserte su Carrera\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    io::stdin().read_line(&mut carrerita).expect(&"Carrera no leida".red());
-
-                    carrerita = carrerita.trim().to_string();
-        
-                    print!("\nInserte su Salario\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    let mut salarito = 0;
-                    match scanf!("{}", salarito) {
-                        Ok(num) => num,
+                    print!("\nInserte su Nombre.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
                         Err(_) => {
-                            println!("{}", "\nSalario no leido".red());
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    match io::stdin().read_line(&mut nombresito) {
+                        Ok(str) => str,
+                        Err(_) => {
+                            print!("{}", "Nombre no leido.".red());
                             continue;
                         }
                     };
-        
+                    nombresito = nombresito.trim().to_string();
+                    print!("\nInserte su Apellido Paterno.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
+                        Err(_) => {
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    match io::stdin().read_line(&mut apsito) {
+                        Ok(str) => str,
+                        Err(_) => {
+                            print!("{}", "Apellido no leido.".red());
+                            continue;
+                        }
+                    };
+                    apsito = apsito.trim().to_string();
+                    print!("\nInserte su Apellido Materno.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
+                        Err(_) => {
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    match io::stdin().read_line(&mut amsito) {
+                        Ok(str) => str,
+                        Err(_) => {
+                            print!("{}", "Apellido no leido.".red());
+                            continue;
+                        }
+                    };
+                    amsito = amsito.trim().to_string();
+                    print!("\nInserte su Carrera.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
+                        Err(_) => {
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    match io::stdin().read_line(&mut carrerita) {
+                        Ok(str) => str,
+                        Err(_) => {
+                            print!("{}", "Carrera no leida.".red());
+                            continue;
+                        }
+                    };
+                    carrerita = carrerita.trim().to_string();
+                    print!("\nInserte su Salario.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
+                        Err(_) => {
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    let mut salarito:f32 = 0.0;
+                    match scanf!("{}", salarito) {
+                        Ok(num) => num,
+                        Err(_) => {
+                            println!("{}", "\nSalario no leido.".red());
+                            continue;
+                        }
+                    };
                     let salarito = salarito.to_string();
-        
-                    print!("\nInserte su Día de Registro\n:");
-                    io::stdout().flush().expect("\nflush fallido");
-                    io::stdin().read_line(&mut dia_reg).expect(&"Dia no leido".red());
-
+                    print!("\nInserte su Día de Registro.\n:");
+                    match io::stdout().flush() {
+                        Ok(fl) => fl,
+                        Err(_) => {
+                            println!("{}", "\nFlush fallido.".red());
+                            continue;
+                        }
+                    }
+                    match io::stdin().read_line(&mut dia_reg) {
+                        Ok(str) => str,
+                        Err(_) => {
+                            print!("{}", "Día no leido.".red());
+                            continue;
+                        }
+                    };
                     dia_reg = dia_reg.trim().to_string();
-                    
                     if nombresito.len() < 2 {
                         usuarito.push_str(&nombresito[0..nombresito.len()]);
                     } else {
                         usuarito.push_str(&nombresito[0..2]);
                     }
-                    
                     if apsito.len() < 2 {
                         usuarito.push_str(&apsito[0..apsito.len()]);
                     } else {
                         usuarito.push_str(&apsito[0..2]);
                     }
-                    
                     if amsito.len() < 2 {
                         usuarito.push_str(&amsito[0..amsito.len()]);
                     } else {
                         usuarito.push_str(&amsito[0..2]);
                     }
-
                     if carrerita.len() < 2 {
                         usuarito.push_str(&carrerita[0..carrerita.len()]);
                     } else {
@@ -396,12 +443,17 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
                     }
                     usuarito.push_str(&rand::thread_rng().gen_range(1000..=9999).to_string());
                     usuarito = usuarito.to_lowercase();
-        
                     contraseñita.push_str(&usuarito);
                     loop {
-                        print!("\nSe han obtenido los siguientes datos:\nCódigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\nCarrera: {}\nSalario: ${}\nDia de Registro: {}\n\nSu Usuario será: {}\nSu Contraseña será: {}\n\nDesea continuar?\n1. Si\n2. No\n:"
-                        ,codiguito.blue(),nombresito.blue(),apsito.blue(),amsito.blue(),  carrerita.blue(), salarito.blue(),dia_reg.blue(),usuarito.bright_black(), contraseñita.bright_black());
-                        io::stdout().flush().expect("\nflush fallido");
+                        print!("\nSe han obtenido los siguientes datos:\nCódigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\nCarrera: {}\nSalario: ${}\nDia de Registro: {}\n\nSu Usuario será: {}\nSu Contraseña será: {}\n\n{}\n1. Si\n2. No\n:"
+                        ,codiguito.blue(),nombresito.blue(),apsito.blue(),amsito.blue(),  carrerita.blue(), salarito.blue(),dia_reg.blue(),usuarito.bright_black(), contraseñita.bright_black(), "Desea continuar?.".bright_white());
+                        match io::stdout().flush() {
+                            Ok(fl) => fl,
+                            Err(_) => {
+                                println!("{}", "\nFlush fallido.".red());
+                                continue;
+                            }
+                        }
                         let mut opt:u8 = 0;
                         match scanf!("{}", opt) {
                             Ok(num) => num,
@@ -410,10 +462,9 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
                                 continue;
                             }
                         };
-
                         match opt {
                         1 =>
-                        return Trainer { TRusrname: usuarito, TRpassword: contraseñita, TRcode: codiguito.to_string(), TRname: nombresito, TRlastName1: apsito, TRlastName2: amsito, TRcareer: carrerita, TRsalary: salarito, TRregDate: dia_reg }
+                            return Trainer { TRusrname: usuarito, TRpassword: contraseñita, TRcode: codiguito.to_string(), TRname: nombresito, TRlastName1: apsito, TRlastName2: amsito, TRcareer: carrerita, TRsalary: salarito, TRregDate: dia_reg }
                         ,
                         2 => break,
                         _ => {
@@ -422,14 +473,12 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
                         }
                         }
                     }
-
                 }
             } 
         }
     }
 }
 /*-SIGNUP-*/
-
 /*-MOSTRAR-*/
 	/*
 	Para MOSTRAR ENTRENADORES, se muestra la lista de entrenadores, código, nombre y
@@ -437,7 +486,7 @@ fn signup(entrenadores: &Vec<Trainer>) -> Trainer {
 	*/
 fn mostrar(entrenadores: &Vec<Trainer>) {
     if entrenadores.len() == 1 {
-        println!("\nNo hay usuarios por mostrar");
+        println!("\nNo hay usuarios por mostrar.");
     } else {
         for i in 1..entrenadores.len() {
             println!("\nCodigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}", entrenadores[i].TRcode.green(), entrenadores[i].TRname.green(), entrenadores[i].TRlastName1.green(), entrenadores[i].TRlastName2.green());
@@ -445,7 +494,6 @@ fn mostrar(entrenadores: &Vec<Trainer>) {
     }
 }
 /*-/MOSTRAR-*/
-
 /*-BUSCAR-*/
 	/*
 	Para BUSCAR ENTRENADOR, se busca por código, si no se encuentra imprime mensaje,
@@ -454,19 +502,25 @@ fn mostrar(entrenadores: &Vec<Trainer>) {
 fn buscar(entrenadores: &Vec<Trainer>) {
     let mut j = 0;
     let mut codiguito = String::new();
-
     if entrenadores.len() == 1 {
-        println!("\nNo hay usuarios por buscar");
+        println!("\nNo hay usuarios por buscar.");
     } else {
-        print!("\nInserte el codigo del entrenador a buscar\n:");
-
-        io::stdout().flush().expect("\nflush fallido");
-        io::stdin().read_line(&mut codiguito).expect(&"Código no leido".red());
-
+        print!("\nInserte el código del entrenador a buscar.\n:");
+        match io::stdout().flush() {
+            Ok(fl) => fl,
+            Err(_) => {
+                println!("{}", "\nFlush fallido.".red())
+            }
+        }
+        match io::stdin().read_line(&mut codiguito) {
+            Ok(num) => num,
+            Err(_) => {
+                println!("{}", "\nCódigo no leido.".red());
+                return;
+            }
+        };
         codiguito = codiguito.trim().to_string();
-
         let codiguito = codiguito.to_string();
-
         for i in 0..entrenadores.len() {
             if entrenadores[i].TRcode == codiguito {
             print!("\nCodigo: {}\nNombre: {}\nApellido Paterno: {}\nApellido Materno: {}\n", entrenadores[i].TRcode.green(), entrenadores[i].TRname.green(), entrenadores[i].TRlastName1.green(), entrenadores[i].TRlastName2.green());
@@ -475,8 +529,63 @@ fn buscar(entrenadores: &Vec<Trainer>) {
             }
         }
         if j == 0 {
-            println!("\nNo se ha encontrado ningun resultado");
+            println!("\nNo se ha encontrado ningun resultado.");
         }
     }
 }
 /*-/BUSCAR-*/
+/*-EQUIPOXCOACH-*/
+	/*
+	En EQUIPO POR ENTRENADOR, se pregunta el código del entrenador y muestra cuantos
+	y cuales equipos tiene, regresa al menú de ENTRENADORES.
+	*/
+fn equipoXCoach(entrenadores: &mut Vec<Trainer>, equipos: &mut Vec<Team>) {
+    let mut cuenta = 0;
+    let mut codiguito = String::new();
+    let (mut exists,mut found) = (false, false);
+
+    if entrenadores.len() == 1 {
+        println!("\nNo hay usuarios por buscar.");
+    } else {
+        print!("\nInserte el codigo del entrenador a buscar\n:");
+        match io::stdout().flush() {
+            Ok(fl) => fl,
+            Err(_) => {
+                println!("{}", "\nFlush fallido.".red());
+                return;
+            }
+        }
+        match io::stdin().read_line(&mut codiguito) {
+            Ok(num) => num,
+            Err(_) => {
+                println!("{}", INVALID.red());
+                return;
+            }
+        };
+        codiguito = codiguito.trim().to_string();
+        for i in 1..entrenadores.len() {
+            if entrenadores[i].TRcode == codiguito {
+                exists = true;
+                for j in 0..equipos.len() {
+                    if equipos[j].EQcoachID == codiguito {
+                        found = true;
+                        print!("\nCodigo de equipo: {}.", equipos[j].EQteamID);
+                        cuenta += 1;
+                    }
+                }
+                if !found {
+                    println!("\nEste entrenador no tiene equipos.");
+                } else if cuenta == 1 {
+                    println!("\nEste entrenador tiene 1 equipo.");
+                } else {
+                    println!("\nEste entrenador tiene {} equipos.", cuenta);
+                }
+                break;
+            }
+        }
+        if !exists {
+            println!("\nNo se ha encontrado ningun resultado.");
+        }
+    }
+}
+    /*-/EQUIPOXCOACH-*/

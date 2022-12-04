@@ -542,7 +542,8 @@ void buscar(int *coachCount) {
         puts("\nNo hay usuarios por buscar");
     } else {
         printf("\nInserte el codigo del entrenador a buscar\n:");
-        scanf("%7d", &codiguito);
+        scanf("%7d", &cod".bright_white());
+        let mut opt: u8 = 0;iguito);
 		getc(stdin);
 
         for(i = 1; i < *coachCount; ++i) {
